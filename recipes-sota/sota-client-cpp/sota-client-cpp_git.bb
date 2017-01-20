@@ -12,14 +12,17 @@ S = "${WORKDIR}/git"
 
 SRCREV = "a974dc2eea47594a6177f4c69c2d937a819aa7b3"
 
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+
 SRC_URI = " \
 	git://github.com/advancedtelematic/sota_client_cpp \
+        file://0001-CMakeLists-Remove-dbus-and-CommonAPI.patch \
 	"
 
-DEPENDS = "boost curl openssl"
+DEPENDS = "boost curl openssl dbus common-api-c++-dbus dlt-daemon"
 RDEPENDS = ""
 
-EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release"
+EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_DBUS_GATEWAY=ON"
 
 do_install() {
   install -d ${D}${bindir}
