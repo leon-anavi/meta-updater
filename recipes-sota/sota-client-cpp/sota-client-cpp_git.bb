@@ -24,6 +24,20 @@ RDEPENDS = ""
 
 EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_DBUS_GATEWAY=ON"
 
+do_configure_prepend() {
+  if [ ! -e ${STAGING_DIR_TARGET}/${includedir}/dbus ]; then
+    ln -s ${STAGING_DIR_TARGET}/${includedir}/dbus-1.0/dbus/ ${STAGING_DIR_TARGET}/${includedir}/dbus
+  fi
+
+  if [ ! -e ${STAGING_DIR_TARGET}/${includedir}/dbus/dbus-arch-deps.h ]; then
+    ln -s ${STAGING_DIR_TARGET}/${libdir}/dbus-1.0/include/dbus/dbus-arch-deps.h ${STAGING_DIR_TARGET}/${includedir}/dbus/dbus-arch-deps.h
+  fi
+
+  if [ ! -e ${STAGING_DIR_TARGET}/${includedir}/CommonAPI ]; then
+    ln -s ${STAGING_DIR_TARGET}/${includedir}/CommonAPI-3.1/CommonAPI/ ${STAGING_DIR_TARGET}/${includedir}/CommonAPI
+  fi
+}
+
 do_install() {
   install -d ${D}${bindir}
   install -m 0755 ${WORKDIR}/build/target/sota_client ${D}${bindir}/sota_client_cpp
