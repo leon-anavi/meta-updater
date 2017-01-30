@@ -1,0 +1,128 @@
+From 6941e41d32878005625569146dc16be90e5e8886 Mon Sep 17 00:00:00 2001
+From: Leon Anavi <leon.anavi@konsulko.com>
+Date: Mon, 30 Jan 2017 18:08:08 +0200
+Subject: [PATCH] CMakeLists: Fix dependencies
+
+Rely on the Yocto/OE recipe for providing the
+required dependencies CommonAPI and DBus.
+
+Signed-off-by: Leon Anavi <leon.anavi@konsulko.com>
+---
+ CMakeLists.txt     | 44 ++++++++++++++++++++++----------------------
+ src/CMakeLists.txt | 30 +++++++++++++++---------------
+ 2 files changed, 37 insertions(+), 37 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d176454..39346d2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -18,28 +18,28 @@ add_definitions(-DWITH_DBUS)
+ 
+ include(ExternalProject)
+ 
+-ExternalProject_Add(libdbus
+-    DOWNLOAD_COMMAND ""
+-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/dbus-1.9.0
+-    CONFIGURE_COMMAND  ./autogen.sh --prefix=${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build  COMMAND cmake cmake -DDBUS_INSTALL_DIR=${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build 
+-    BUILD_COMMAND ${MAKE}
+-    INSTALL_COMMAND make install COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/third_party/dbus-1.9.0/dbus-1.pc ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/include ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/include/dbus-1.0
+-	BUILD_IN_SOURCE 1)
+-
+-ExternalProject_Add(commonapi
+-    DOWNLOAD_COMMAND ""
+-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/common-api-runtime
+-    CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_SOURCE_DIR}/third_party/common-api-runtime/ -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install
+-    BUILD_COMMAND ${MAKE}
+-    BUILD_IN_SOURCE 1)
+-
+-ExternalProject_Add(dbusapi
+-    PREFIX "third_party/common-api-dbus-runtime"
+-    GIT_REPOSITORY "http://git.projects.genivi.org/ipc/common-api-dbus-runtime.git"
+-    CONFIGURE_COMMAND PKG_CONFIG_PATH=${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/ cmake . -DUSE_INSTALLED_COMMONAPI=OFF  -DUSE_INSTALLED_DBUS=OFF -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/third_party/common-api-dbus-runtime/patches/interface_and_session.patch
+-    BUILD_COMMAND ${MAKE}
+-    BUILD_IN_SOURCE 1)
++#ExternalProject_Add(libdbus
++#    DOWNLOAD_COMMAND ""
++#    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/dbus-1.9.0
++#    CONFIGURE_COMMAND  ./autogen.sh --prefix=${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build  COMMAND cmake cmake -DDBUS_INSTALL_DIR=${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build 
++#    BUILD_COMMAND ${MAKE}
++#    INSTALL_COMMAND make install COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/third_party/dbus-1.9.0/dbus-1.pc ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/include ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/include/dbus-1.0
++#	BUILD_IN_SOURCE 1)
++#
++#ExternalProject_Add(commonapi
++#    DOWNLOAD_COMMAND ""
++#    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/common-api-runtime
++#    CONFIGURE_COMMAND cmake ${CMAKE_CURRENT_SOURCE_DIR}/third_party/common-api-runtime/ -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install
++#    BUILD_COMMAND ${MAKE}
++#    BUILD_IN_SOURCE 1)
++#
++#ExternalProject_Add(dbusapi
++#    PREFIX "third_party/common-api-dbus-runtime"
++#    GIT_REPOSITORY "http://git.projects.genivi.org/ipc/common-api-dbus-runtime.git"
++#    CONFIGURE_COMMAND PKG_CONFIG_PATH=${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/ cmake . -DUSE_INSTALLED_COMMONAPI=OFF  -DUSE_INSTALLED_DBUS=OFF -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
++#    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/third_party/common-api-dbus-runtime/patches/interface_and_session.patch
++#    BUILD_COMMAND ${MAKE}
++#    BUILD_IN_SOURCE 1)
+ 
+ endif(BUILD_WITH_DBUS_GATEWAY)
+ 
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 20ea056..2a7ddc9 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -64,19 +64,19 @@ include_directories(
+     src/dbusgateway/src-gen
+ )
+ 
+-ExternalProject_Get_Property(dbusapi install_dir)
+-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/include/)
++#ExternalProject_Get_Property(dbusapi install_dir)
++#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/include/)
+ 
+-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install/include/CommonAPI-3.1)
+-include_directories(${install_dir}/include/CommonAPI-3.1)
++#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install/include/CommonAPI-3.1)
++#include_directories(${install_dir}/include/CommonAPI-3.1)
+ 
+-include_directories(${install_dir}/include)
++#include_directories(${install_dir}/include)
+ 
+-link_directories(
+-    ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/lib
+-    ${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install/lib
+-    ${install_dir}/lib
+-)
++#link_directories(
++#    ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/lib
++#    ${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install/lib
++#    ${install_dir}/lib
++#)
+ 
+ set(DBUS_LIBS CommonAPI CommonAPI-DBus dbus-1)
+ endif(BUILD_WITH_DBUS_GATEWAY)
+@@ -91,8 +91,8 @@ add_executable(sota_client ${SOURCES} ${DBUS_SOURCES})
+ target_link_libraries(sota_client ${LINK_LIBS} ${DBUS_LIBS})
+ 
+ if(BUILD_WITH_DBUS_GATEWAY)
+-    add_dependencies(sota_client dbusapi)
+-    add_dependencies(dbusapi commonapi libdbus)
++    #add_dependencies(sota_client dbusapi)
++    #add_dependencies(dbusapi commonapi libdbus)
+ endif(BUILD_WITH_DBUS_GATEWAY)
+ 
+ configure_file(distribution/sota.service.cmake distribution/sota.service)
+@@ -101,7 +101,7 @@ install(TARGETS sota_client RUNTIME  DESTINATION bin)
+ install(FILES  config/config.toml.example DESTINATION /etc/  RENAME sota.conf  COMPONENT configuration)
+ 
+ if(BUILD_WITH_DBUS_GATEWAY)
+-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install/lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+-    install(DIRECTORY ${install_dir}/lib DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
++    #install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libdbus_build/lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
++    #install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/commonapi_install/lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
++    #install(DIRECTORY ${install_dir}/lib DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+ endif(BUILD_WITH_DBUS_GATEWAY)
+-- 
+2.7.4
+
