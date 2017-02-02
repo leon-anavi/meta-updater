@@ -15,9 +15,9 @@ SRCREV = "b14c668bdf914c71e68706168aa821bcae32c8f3"
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI = " \
-	git://github.com/advancedtelematic/sota_client_cpp \
-        file://0001-CMakeLists-Fix-dependencies.patch \
-       "
+          git://github.com/advancedtelematic/sota_client_cpp \
+          file://0001-CMakeLists.txt-Support-building-through-bitbake.patch \
+          "
 
 DEPENDS = "boost curl openssl dbus common-api-c++-dbus dlt-daemon pugixml"
 RDEPENDS = ""
@@ -30,5 +30,5 @@ do_install() {
 }
 
 FILES_${PN} = " \
-                ${bindir}/sota_client_cpp \
-		"
+              ${bindir}/sota_client_cpp \
+              "
