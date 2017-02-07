@@ -10,19 +10,18 @@ inherit cmake systemd
 
 S = "${WORKDIR}/git"
 
-SRCREV = "b14c668bdf914c71e68706168aa821bcae32c8f3"
+SRCREV = "1b7b9d92f432188f7c12ab19d4f736098b199a9f"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI = " \
           git://github.com/advancedtelematic/sota_client_cpp \
-          file://0001-CMakeLists.txt-Support-building-through-bitbake.patch \
           "
 
-DEPENDS = "boost curl openssl dbus common-api-c++-dbus dlt-daemon pugixml"
+DEPENDS = "boost curl openssl dbus common-api-c++-dbus dlt-daemon gmock gtest pugixml"
 RDEPENDS = ""
 
-EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_DBUS_GATEWAY=ON -DSTAGING_DIR_TARGET=${STAGING_DIR_TARGET}"
+EXTRA_OECMAKE = "-DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_DBUS_GATEWAY=ON -DSTAGING_DIR_TARGET=${STAGING_DIR_TARGET} -DGMOCK_ROOT=${STAGING_DIR_TARGET}${includedir}/gmock"
 
 do_install() {
   install -d ${D}${bindir}
