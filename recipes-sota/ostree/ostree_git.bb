@@ -79,6 +79,8 @@ FILES_${PN} += " \
     ${datadir}/gir-1.0/OSTree-1.0.gir \
     ${libdir}/girepository-1.0 \
     ${libdir}/girepository-1.0/OSTree-1.0.typelib \
+    ${libdir_native}/dracut \
+    ${libdir_native}/ostree \
 "
 
 PACKAGES =+ "${PN}-switchroot"
